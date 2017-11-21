@@ -34,6 +34,74 @@ class FaceIdPoseDataset(Dataset):
 
         return [image, ID, pose]
 
+class FaceIdPoseDataset2(Dataset):
+
+    # assume
+    #             images: N x C x H x W  numpy array (N: # of total training data)
+    #             images_paths: N x "str" list of image path
+    #             IDs: N x num_ID numpy array
+    #             illus: N x num_illumination numpy array
+
+    def __init__(self, images_paths, IDs, illus, transform=None, random_flip=True):
+        self.images_paths = images_paths
+        self.IDs = IDs
+        self.illus = illus
+        self.transform = transform
+        self.random_flip = random_flip
+
+    def __len__(self):
+        return len(self.images_paths)
+
+    def __getitem__(self, idx):
+        im_p = self.images_paths[idx]
+        ID = self.IDs[idx]
+        illu = self.illus[idx]
+
+        # read image
+        image = io.imread(im_p)
+        
+        '''
+        image = FaceCrop(image)
+        image = Resize(image)
+        '''
+
+        # horizontal flip the image with 50% chance
+        if self.random_flip:
+            if int(np.random.randint(2)) == 0:
+                image = np.fliplr(image)
+
+        #[0,255] -> [-1,1]
+        image = image / 255.0
+        image = 2.0 * image - 1.0
+
+        # RGB -> BGR
+        image = image[:,:,[2,1,0]]
+
+        # H x W x C -> C x H x W
+        image = image.transpose(2, 0, 1)
+
+        # RandomCrop
+        if self.transform:
+            image = self.transform(image)
+ 
+        return [image, ID, illu]
+
+# class MyDataset(torch.utils.data.Dataset):
+#     def __init__(self):
+#         self.data_files = os.listdir('/home/hank/Desktop/123')
+#         print(self.data_files)
+#         # sort(self.data_files)
+
+#     def __getitem__(self, idx): # All data MUST have the same size before return
+#         return st.resize(io.imread('/home/hank/Desktop/123/'+self.data_files[idx]), [20, 20])
+
+#     def __len__(self):
+#         return len(self.data_files)
+
+
+
+
+
 
 class Resize(object):
 
