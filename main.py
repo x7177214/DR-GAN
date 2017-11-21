@@ -65,7 +65,7 @@ if __name__=="__main__":
     parser.add_argument('-cuda', action='store_true', default=False, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
-    parser.add_argument('-data_place', type=str, default='../cfp-dataset', help='prepared data path to run program')
+    parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
     # model
     parser.add_argument('-multi-DRGAN', action='store_true', default=False, help='use multi image DR_GAN model')
     parser.add_argument('-images-perID', type=int, default=0, help='number of images per person to input to multi image DR_GAN')
