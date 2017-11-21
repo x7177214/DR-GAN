@@ -9,7 +9,6 @@ import torch
 from torch import nn, optim
 from torch.autograd import Variable
 # from model import single_DR_GAN_model as single_model
-# from model import multiple_DR_GAN_model as multi_model
 import model.single_DR_GAN_model as single_model
 from util.create_randomdata import create_randomdata
 from train_single_DRGAN import train_single_DRGAN
