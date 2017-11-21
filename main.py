@@ -8,8 +8,9 @@ import numpy as np
 import torch
 from torch import nn, optim
 from torch.autograd import Variable
-from model import single_DR_GAN_model as single_model
-from model import multiple_DR_GAN_model as multi_model
+# from model import single_DR_GAN_model as single_model
+# from model import multiple_DR_GAN_model as multi_model
+import model.single_DR_GAN_model as single_model
 from util.create_randomdata import create_randomdata
 from train_single_DRGAN import train_single_DRGAN
 from train_multiple_DRGAN import train_multiple_DRGAN
@@ -64,7 +65,7 @@ if __name__=="__main__":
     parser.add_argument('-cuda', action='store_true', default=False, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
-    parser.add_argument('-data-place', type=str, default='./data', help='prepared data path to run program')
+    parser.add_argument('-data_place', type=str, default='./cfp-dataset', help='prepared data path to run program')
     # model
     parser.add_argument('-multi-DRGAN', action='store_true', default=False, help='use multi image DR_GAN model')
     parser.add_argument('-images-perID', type=int, default=0, help='number of images per person to input to multi image DR_GAN')
