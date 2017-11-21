@@ -16,7 +16,7 @@ output:
 '''
 
 ### controller ###
-image_dir = "./cfp-dataset/Data/Images/"
+image_dir = "../dataset/cfp-dataset/Data/Images/"
 LONGSIDE_SIZE = 110
 ################## 
 
