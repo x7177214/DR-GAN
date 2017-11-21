@@ -106,7 +106,7 @@ if __name__=="__main__":
                 D = multi_model.Discriminator(Nd, Np, channel_num)
                 G = multi_model.Generator(Np, Nz, channel_num, args.images_perID)
     else:
-        print('\nLoading model from [%s]...' % args.snapshot)
+        print('\n Loading model from [%s]...' % args.snapshot)
         try:
             D = torch.load('{}_D.pt'.format(args.snapshot))
             G = torch.load('{}_G.pt'.format(args.snapshot))
