@@ -17,7 +17,7 @@ from Generate_Image import Generate_Image
 import pdb
 
 
-def DataLoader(data_place):
+def DataLoader(data_place, num_data=7000):
     """
     Define dataloder which is applicable to your data
 
@@ -39,6 +39,10 @@ def DataLoader(data_place):
 
     Np = int(pose_labels.max() + 1)
     Nd = int(id_labels.max() + 1)
+
+    images = images[:num_data]
+    id_labels = id_labels[:num_data]
+    pose_labels = pose_labels[:num_data]
 
     return [images, id_labels, pose_labels, Nd, Np, Nz, channel_num]
 
@@ -89,7 +93,7 @@ if __name__=="__main__":
     else:
         print('n\Loading data from [%s]...' % args.data_place)
         try:
-            images, id_labels, pose_labels, Nd, Np, Nz, channel_num = DataLoader(args.data_place)
+            images, id_labels, pose_labels, Nd, Np, Nz, channel_num = DataLoader(args.data_place, 10)
         except:
             print("Sorry, failed to load data")
 
