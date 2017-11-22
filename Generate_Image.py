@@ -28,7 +28,7 @@ def Generate_Image(images, pose_code, Nz, G_model, args):
 
     """
     if args.cuda:
-        D_model.cuda()
+        # D_model.cuda()
         G_model.cuda()
 
     G_model.eval()

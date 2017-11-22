@@ -29,11 +29,11 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     G_model.train()
 
     lr_Adam    = args.lr
-    beta1_Adam = args.beta1
+    beta1_Adam = args.betgia1
     beta2_Adam = args.beta2
     # eps = 10**-300 orginal
     eps = 10**-3
-    
+
     image_size = images.shape[0]
     epoch_time = np.ceil(image_size / args.batch_size).astype(int)
 
