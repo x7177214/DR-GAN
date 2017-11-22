@@ -51,7 +51,7 @@ def Generate_Image(images, pose_code, Nz, G_model, args):
 
             if args.cuda:
                 batch_image, fixed_noise, batch_pose_code = \
-                    batch_image.cuda(), fixed_noise.cuda(), batch_pose_cod.cuda()
+                    batch_image.cuda(), fixed_noise.cuda(), batch_pose_code.cuda()
 
             batch_image, fixed_noise, batch_pose_code = \
                 Variable(batch_image), Variable(fixed_noise), Variable(batch_pose_code)
