@@ -16,8 +16,8 @@ from torchvision import transforms
 from util.one_hot import one_hot
 from util.Is_D_strong import Is_D_strong
 from util.log_learning import log_learning
-from util.DataAugmentation import FaceIdPoseDataset, Resize, RandomCrop
-
+# from util.DataAugmentation import FaceIdPoseDataset, Resize, RandomCrop
+from util.DataAugmentation import FaceIdPoseDataset2, Resize, RandomCrop
 
 
 def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_model, args):
@@ -31,11 +31,11 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     lr_Adam    = args.lr
     beta1_Adam = args.beta1
     beta2_Adam = args.beta2
-    # eps = 10**-300 orginal
-    eps = 10**-3
+    eps = 10**-300 orginal
+    # eps = 10**-3
 
-    image_size = images.shape[0]
-    epoch_time = np.ceil(image_size / args.batch_size).astype(int)
+    # image_size = images.shape[0]
+    # epoch_time = np.ceil(image_size / args.batch_size).astype(int)
 
     optimizer_D = optim.Adam(D_model.parameters(), lr = lr_Adam, betas=(beta1_Adam, beta2_Adam))
     optimizer_G = optim.Adam(G_model.parameters(), lr = lr_Adam, betas=(beta1_Adam, beta2_Adam))
@@ -48,9 +48,13 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     for epoch in range(1,args.epochs+1):
 
         # Load augmented data
-        transformed_dataset = FaceIdPoseDataset(images, id_labels, pose_labels,
+        # transformed_dataset = FaceIdPoseDataset(images, id_labels, pose_labels,
+        #                                 transform = transforms.Compose([RandomCrop((96,96))]))
+        # Load augmented data (using img path)
+        transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
                                         transform = transforms.Compose([RandomCrop((96,96))]))
-        dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True)
+
+        dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True, num_workers=8)
 
         for i, batch_data in enumerate(dataloader):
             D_model.zero_grad()

@@ -86,23 +86,6 @@ class FaceIdPoseDataset2(Dataset):
  
         return [image, ID, illu]
 
-# class MyDataset(torch.utils.data.Dataset):
-#     def __init__(self):
-#         self.data_files = os.listdir('/home/hank/Desktop/123')
-#         print(self.data_files)
-#         # sort(self.data_files)
-
-#     def __getitem__(self, idx): # All data MUST have the same size before return
-#         return st.resize(io.imread('/home/hank/Desktop/123/'+self.data_files[idx]), [20, 20])
-
-#     def __len__(self):
-#         return len(self.data_files)
-
-
-
-
-
-
 class Resize(object):
 
     #  assume image  as C x H x W  numpy array

@@ -14,8 +14,12 @@ from util.create_randomdata import create_randomdata
 from train_single_DRGAN import train_single_DRGAN
 from train_multiple_DRGAN import train_multiple_DRGAN
 from Generate_Image import Generate_Image
+from data_io import read_path_and_label
 import pdb
 
+NUM_ID = 346
+NUM_ILLUMINATION = 20
+NUM_SESS = 4
 
 def DataLoader(data_place, num_data=7000):
     """
@@ -24,9 +28,9 @@ def DataLoader(data_place, num_data=7000):
     ### ouput
     images : 4 dimension tensor (the number of image x channel x image_height x image_width)
     id_labels : one-hot vector with Nd dimension
-    pose_labels : one-hot vetor with Np dimension
+    pose_labels : one-hot vetor with Ni dimension
     Nd : the nuber of ID in the data
-    Np : the number of discrete pose in the data
+    Ni : the number of discrete pose in the data
     Nz : size of noise vector (Default in the paper is 50)
     """
 
@@ -37,15 +41,34 @@ def DataLoader(data_place, num_data=7000):
     id_labels = np.load('{}/ids.npy'.format(data_place))
     pose_labels = np.load('{}/yaws.npy'.format(data_place))
 
-    Np = int(pose_labels.max() + 1)
+    Ni = int(pose_labels.max() + 1)
     Nd = int(id_labels.max() + 1)
 
     images = images[:num_data]
     id_labels = id_labels[:num_data]
     pose_labels = pose_labels[:num_data]
 
-    return [images, id_labels, pose_labels, Nd, Np, Nz, channel_num]
+    return [images, id_labels, pose_labels, Nd, Ni, Nz, channel_num]
 
+def DataLoader2(data_place):
+    """
+    ### ouput
+    imgs_path_list : N x string; list of image path
+    labels_ID : one-hot vector with Nd dimension
+    labels_illu : one-hot vetor with Ni dimension
+    Nd : the nuber of ID in the data
+    Ni : the number of discrete pose in the data
+    Nz : size of noise vector (Default in the paper is 50)
+    """
+
+    Nz = 50
+    Ni = NUM_ILLUMINATION
+    Nd = NUM_ID
+    channel_num = 3
+
+    imgs_path_list, labels_ID, labels_illu = read_path_and_label(data_place)
+
+    return [imgs_path_list, labels_ID, labels_illu, Nd, Ni, Nz, channel_num]
 
 if __name__=="__main__":
 
@@ -61,7 +84,8 @@ if __name__=="__main__":
     parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
-    parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
+    # parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
+    parser.add_argument('-data_place', type=str, default='/Disk2/Multi-Pie/data', help='prepared data path to run program')
     # model
     parser.add_argument('-multi-DRGAN', action='store_true', default=False, help='use multi image DR_GAN model')
     parser.add_argument('-images-perID', type=int, default=0, help='number of images per person to input to multi image DR_GAN')
@@ -86,29 +110,28 @@ if __name__=="__main__":
         with open('{}/Parameters.txt'.format(args.save_dir),'a') as f:
             f.write(text)
 
-
     # input data
     if args.random:
-        images, id_labels, pose_labels, Nd, Np, Nz, channel_num = create_randomdata()
+        images, id_labels, pose_labels, Nd, Ni, Nz, channel_num = create_randomdata()
     else:
-        print('n\Loading data from [%s]...' % args.data_place)
+        print('\n Loading data from [%s]...' % args.data_place)
         try:
-            images, id_labels, pose_labels, Nd, Np, Nz, channel_num = DataLoader(args.data_place, 10)
+            images, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader2(args.data_place)
         except:
             print("Sorry, failed to load data")
 
     # model
     if args.snapshot is None:
         if not(args.multi_DRGAN):
-            D = single_model.Discriminator(Nd, Np, channel_num)
-            G = single_model.Generator(Np, Nz, channel_num)
+            D = single_model.Discriminator(Nd, Ni, channel_num)
+            G = single_model.Generator(Ni, Nz, channel_num)
         else:
             if args.images_perID==0:
                 print("Please specify -images-perID of your data to input to multi_DRGAN")
                 exit()
             else:
-                D = multi_model.Discriminator(Nd, Np, channel_num)
-                G = multi_model.Generator(Np, Nz, channel_num, args.images_perID)
+                D = multi_model.Discriminator(Nd, Ni, channel_num)
+                G = multi_model.Generator(Ni, Nz, channel_num, args.images_perID)
     else:
         print('\n Loading model from [%s]...' % args.snapshot)
         try:
@@ -120,14 +143,14 @@ if __name__=="__main__":
 
     if not(args.generate):
         if not(args.multi_DRGAN):
-            train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D, G, args)
+            train_single_DRGAN(images, id_labels, pose_labels, Nd, Ni, Nz, D, G, args)
         else:
             if args.batch_size % args.images_perID == 0:
-                train_multiple_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D, G, args)
+                train_multiple_DRGAN(images, id_labels, pose_labels, Nd, Ni, Nz, D, G, args)
             else:
                 print("Please give valid combination of batch_size, images_perID")
                 exit()
     else:
         # pose_code = [] # specify arbitrary pose code for every image
-        pose_code = np.random.uniform(-1,1, (images.shape[0], Np))
+        pose_code = np.random.uniform(-1, 1, (images.shape[0], Ni))
         features = Generate_Image(images, pose_code, Nz, G, args)
