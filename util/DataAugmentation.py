@@ -70,7 +70,7 @@ class FaceIdPoseDataset2(Dataset):
         # img = img[50:50+300, 198:198+300, :]
 
         # Resize
-        image = st.resize(image, [self.img_size, self.img_size])
+        image = st.resize(image, [self.img_size, self.img_size], mode='reflect')
 
         # horizontal flip the image with 50% chance
         if self.random_flip:
