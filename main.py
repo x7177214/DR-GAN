@@ -87,7 +87,7 @@ if __name__=="__main__":
     parser.add_argument('-batch-size', type=int, default=8, help='batch size for training [default: 8]')
     parser.add_argument('-save-dir', type=str, default='snapshot', help='where to save the snapshot')
     parser.add_argument('-save-freq', type=int, default=10, help='save learned model for every "-save-freq" epoch')
-    parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
+    parser.add_argument('-cuda', action='store_true', default=False, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
     # parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
