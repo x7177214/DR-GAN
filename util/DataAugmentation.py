@@ -7,6 +7,7 @@
 import scipy as sp
 import numpy as np
 import skimage.transform as st
+import skimage.io as io
 from torch.utils.data import Dataset
 import pdb
 
