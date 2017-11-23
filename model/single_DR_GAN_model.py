@@ -24,6 +24,7 @@ class Discriminator(nn.Module):
         if args:
             assert args.rndcrop_train_img_size % 16 == 0
             self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
+            print(self.pooling_ks)
         else:
             self.pooling_ks = 6
 
@@ -146,7 +147,7 @@ class Generator(nn.Module):
         if args:
             assert args.rndcrop_train_img_size % 16 == 0
             self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
-            print(self.pooling_ks)
+            # print(self.pooling_ks)
         else:
             self.pooling_ks = 6
 
@@ -252,7 +253,7 @@ class Generator(nn.Module):
 
         self.G_dec_convLayers = nn.Sequential(*G_dec_convLayers)
 
-        self.G_dec_fc = nn.Linear(320+Np+Nz, 320*6*6)
+        self.G_dec_fc = nn.Linear(320+Np+Nz, 320*self.pooling_ks*self.pooling_ks)
 
         # 重みは全て N(0, 0.02) で初期化
         for m in self.modules():
@@ -279,7 +280,7 @@ class Generator(nn.Module):
 
         x = self.G_dec_fc(x) # B x (320+Np+Nz) -> B x (320x6x6)
 
-        x = x.view(-1, 320, 6, 6) # B x (320x6x6) -> B x 320 x 6 x 6
+        x = x.view(-1, 320, self.pooling_ks, self.pooling_ks) # B x (320x6x6) -> B x 320 x 6 x 6
 
         x = self.G_dec_convLayers(x) #  B x 320 x 6 x 6 -> Bxchx96x96
 
