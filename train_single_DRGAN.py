@@ -32,7 +32,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     beta1_Adam = args.beta1
     beta2_Adam = args.beta2
     rndcrop_size = arg.rndcrop_train_img_size
-    eps = 10**-300 orginal
+    eps = 10**-300 #orginal
     # eps = 10**-3
 
     # image_size = images.shape[0]
