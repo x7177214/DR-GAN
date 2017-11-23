@@ -24,7 +24,6 @@ class Discriminator(nn.Module):
         if args:
             assert args.rndcrop_train_img_size % 16 == 0
             self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
-            print(self.pooling_ks)
         else:
             self.pooling_ks = 6
 
@@ -147,7 +146,6 @@ class Generator(nn.Module):
         if args:
             assert args.rndcrop_train_img_size % 16 == 0
             self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
-            # print(self.pooling_ks)
         else:
             self.pooling_ks = 6
 
