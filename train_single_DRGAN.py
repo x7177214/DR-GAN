@@ -135,7 +135,6 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
                     real_output = D_model(batch_image)
                     syn_output = D_model(generated.detach()) # .detach() をすることでGeneratorのパラメータを更新しない
 
-
                     # id,真偽, pose それぞれのロスを計算
                     L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
                     L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
