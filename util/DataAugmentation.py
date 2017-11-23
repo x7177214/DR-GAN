@@ -6,8 +6,7 @@
 
 import scipy as sp
 import numpy as np
-from skimage import transform
-from torchvision import transforms
+import skimage.transform as st
 from torch.utils.data import Dataset
 import pdb
 
@@ -42,16 +41,17 @@ class FaceIdPoseDataset2(Dataset):
     #             IDs: N x num_ID numpy array
     #             illus: N x num_illumination numpy array
 
-    def __init__(self, images_paths, IDs, illus, transform=None, random_flip=True):
+    def __init__(self, images_paths, IDs, illus, transform=None, random_flip=True, img_size=256):
         self.images_paths = images_paths
         self.IDs = IDs
         self.illus = illus
         self.transform = transform
         self.random_flip = random_flip
+        self.img_size = img_size
 
     def __len__(self):
         return len(self.images_paths)
-
+        
     def __getitem__(self, idx):
         im_p = self.images_paths[idx]
         ID = self.IDs[idx]
@@ -60,10 +60,16 @@ class FaceIdPoseDataset2(Dataset):
         # read image
         image = io.imread(im_p)
         
-        '''
-        image = FaceCrop(image)
-        image = Resize(image)
-        '''
+        # FaceCrop
+        h_start = 50
+        w_start = 198
+        H = 300
+        W = 300
+        image = image[h_start:h_start+H, w_start:w_start+W, :]
+        # img = img[50:50+300, 198:198+300, :]
+
+        # Resize
+        image = st.resize(image, [self.img_size, self.img_size])
 
         # horizontal flip the image with 50% chance
         if self.random_flip:

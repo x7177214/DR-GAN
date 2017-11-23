@@ -17,9 +17,11 @@ from Generate_Image import Generate_Image
 from data_io import read_path_and_label
 import pdb
 
+# NUM_TOTAL_IMG = 18420
 NUM_ID = 346
 NUM_ILLUMINATION = 20
 NUM_SESS = 4
+
 
 def DataLoader(data_place, num_data=7000):
     """
@@ -50,7 +52,7 @@ def DataLoader(data_place, num_data=7000):
 
     return [images, id_labels, pose_labels, Nd, Ni, Nz, channel_num]
 
-def DataLoader2(data_place):
+def DataLoader2(data_place, num_test_data=100):
     """
     ### ouput
     imgs_path_list : N x string; list of image path
@@ -67,6 +69,10 @@ def DataLoader2(data_place):
     channel_num = 3
 
     imgs_path_list, labels_ID, labels_illu = read_path_and_label(data_place)
+
+    imgs_path_list = imgs_path_list[:-num_test_data]
+    labels_ID = labels_ID[:-num_test_data]
+    labels_illu = labels_illu[:-num_test_data]
 
     return [imgs_path_list, labels_ID, labels_illu, Nd, Ni, Nz, channel_num]
 
@@ -92,6 +98,8 @@ if __name__=="__main__":
     # option
     parser.add_argument('-snapshot', type=str, default=None, help='filename of model snapshot(snapshot/{Single or Multiple}/{date}/{epoch}) [default: None]')
     parser.add_argument('-generate', action='store_true', default=None, help='Generate pose modified image from given image')
+    parser.add_argument('-train_img_size', type=int, default=256, help='Image size for training')
+    parser.add_argument('-rndcrop_train_img_size', type=int, default=240, help='Random cropped image size for training')
 
     args = parser.parse_args()
 

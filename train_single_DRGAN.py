@@ -31,6 +31,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     lr_Adam    = args.lr
     beta1_Adam = args.beta1
     beta2_Adam = args.beta2
+    rndcrop_size = arg.rndcrop_train_img_size
     eps = 10**-300 orginal
     # eps = 10**-3
 
@@ -52,7 +53,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
         #                                 transform = transforms.Compose([RandomCrop((96,96))]))
         # Load augmented data (using img path)
         transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
-                                        transform = transforms.Compose([RandomCrop((96,96))]))
+                                        transform = transforms.Compose([RandomCrop((rndcrop_size, rndcrop_size))]), img_size=arg.train_img_size)
 
         dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True, num_workers=8)
 

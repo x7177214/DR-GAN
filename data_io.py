@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import random
 
 ### controller ###
 ROOT_PATH = '/media/hank/ADATA HD710/multi-PIE/Multi-Pie/data'
@@ -51,6 +52,14 @@ def read_path_and_label(root_path):
                 # save ID one hot vector 
                 labels_ID.append(one_hot_ID)
 
+    # shuffle the data
+    num_data = len(imgs_path_list)
+    rnd_s = random.sample(range(num_data), num_data)
+    imgs_path_list = [imgs_path_list[i] for i in rnd_s]
+    labels_ID = [labels_ID[i] for i in rnd_s]
+    labels_illu = [labels_illu[i] for i in rnd_s]
+
+    # to numpy
     labels_ID = np.asarray(labels_ID)
     labels_illu = np.asarray(labels_illu)
 
@@ -58,13 +67,25 @@ def read_path_and_label(root_path):
 
 if __name__ == '__main__':
     imgs_path_list, labels_ID, labels_illu= read_path_and_label(ROOT_PATH)
-    a = np.random.randint(len(imgs_path_list))
-    print(imgs_path_list[a])
-    print(np.where(labels_ID[a]==1))
-    print(np.where(labels_illu[a]==1))
+    # a = np.random.randint(len(imgs_path_list))
+    # print(len(imgs_path_list))
+    # print(imgs_path_list[5])
+    # print(np.where(labels_ID[5]==1))
+    # print(np.where(labels_illu[5]==1))
 
     import skimage.io as io
     import matplotlib.pyplot as plt
-    img = io.imread(imgs_path_list[a])
-    plt.imshow(img)
-    plt.show()
+
+    # find mean face
+    # imgs = 0
+    # for i in range(len(imgs_path_list)):
+    #     img = io.imread(imgs_path_list[i])/255.0
+    #     imgs += img
+    for i in range(10):
+
+        img = io.imread(imgs_path_list[i])/255.0
+        print(img.shape)
+        img = img[50:50+300, 198:198+300, :]
+        
+        plt.imshow(img)
+        plt.show()
