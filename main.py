@@ -52,7 +52,7 @@ def DataLoader(data_place, num_data=7000):
 
     return [images, id_labels, pose_labels, Nd, Ni, Nz, channel_num]
 
-def DataLoader2(data_place, num_test_data=100):
+def DataLoader2(data_place, num_test_data=18400):
     """
     ### ouput
     imgs_path_list : N x string; list of image path
@@ -99,7 +99,7 @@ if __name__=="__main__":
     parser.add_argument('-snapshot', type=str, default=None, help='filename of model snapshot(snapshot/{Single or Multiple}/{date}/{epoch}) [default: None]')
     parser.add_argument('-generate', action='store_true', default=None, help='Generate pose modified image from given image')
     parser.add_argument('-train_img_size', type=int, default=256, help='Image size for training')
-    parser.add_argument('-rndcrop_train_img_size', type=int, default=240, help='Random cropped image size for training')
+    parser.add_argument('-rndcrop_train_img_size', type=int, default=240, help='Random cropped image size for training. Must be 16 * K')
 
     args = parser.parse_args()
 
@@ -131,8 +131,8 @@ if __name__=="__main__":
     # model
     if args.snapshot is None:
         if not(args.multi_DRGAN):
-            D = single_model.Discriminator(Nd, Ni, channel_num)
-            G = single_model.Generator(Ni, Nz, channel_num)
+            D = single_model.Discriminator(Nd, Ni, channel_num, args)
+            G = single_model.Generator(Ni, Nz, channel_num, args)
         else:
             if args.images_perID==0:
                 print("Please specify -images-perID of your data to input to multi_DRGAN")

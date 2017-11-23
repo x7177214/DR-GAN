@@ -7,6 +7,7 @@ from torch.autograd import Variable
 import pdb
 
 
+
 class Discriminator(nn.Module):
     """
     multi-task CNN for identity and pose classification
@@ -17,8 +18,15 @@ class Discriminator(nn.Module):
 
     """
 
-    def __init__(self, Nd, Np, channel_num):
+    def __init__(self, Nd, Np, channel_num, args=None):
         super(Discriminator, self).__init__()
+
+        if args:
+            assert args.rndcrop_train_img_size % 16 == 0
+            self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
+        else:
+            self.pooling_ks = 6
+
         convLayers = [
             nn.Conv2d(channel_num, 32, 3, 1, 1, bias=False), # Bxchx96x96 -> Bx32x96x96
             nn.BatchNorm2d(32),
@@ -66,7 +74,7 @@ class Discriminator(nn.Module):
             nn.Conv2d(160, 320, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx320x6x6
             nn.BatchNorm2d(320),
             nn.ELU(),
-            nn.AvgPool2d(6, stride=1), #  Bx320x6x6 -> Bx320x1x1
+            nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
         ]
 
         self.convLayers = nn.Sequential(*convLayers)
@@ -131,9 +139,15 @@ class Generator(nn.Module):
 
     """
 
-    def __init__(self, Np, Nz, channel_num):
+    def __init__(self, Np, Nz, channel_num, args=None):
         super(Generator, self).__init__()
         self.features = []
+
+        if args:
+            assert args.rndcrop_train_img_size % 16 == 0
+            self.pooling_ks = int(args.rndcrop_train_img_size / 16) # avg. pooling kernel size
+        else:
+            self.pooling_ks = 6
 
         G_enc_convLayers = [
             nn.Conv2d(channel_num, 32, 3, 1, 1, bias=False), # Bx3x96x96 -> Bx32x96x96
@@ -182,7 +196,7 @@ class Generator(nn.Module):
             nn.Conv2d(160, 320, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx320x6x6
             nn.BatchNorm2d(320),
             nn.ELU(),
-            nn.AvgPool2d(6, stride=1), #  Bx320x6x6 -> Bx320x1x1
+            nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
 
         ]
         self.G_enc_convLayers = nn.Sequential(*G_enc_convLayers)
