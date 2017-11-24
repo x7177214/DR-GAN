@@ -17,10 +17,15 @@ from Generate_Image import Generate_Image
 from data_io import read_path_and_label
 import pdb
 
+### controller ###
+NUM_TEST_IMG = 20
+##################
+
 # NUM_TOTAL_IMG = 18420
 NUM_ID = 346
 NUM_ILLUMINATION = 20
 NUM_SESS = 4
+
 
 
 def DataLoader(data_place, num_data=7000):
@@ -52,7 +57,7 @@ def DataLoader(data_place, num_data=7000):
 
     return [images, id_labels, pose_labels, Nd, Ni, Nz, channel_num]
 
-def DataLoader2(data_place, num_test_data=1000):
+def DataLoader2(data_place, num_test_data=NUM_TEST_IMG):
     """
     ### ouput
     imgs_path_list : N x string; list of image path
@@ -70,9 +75,9 @@ def DataLoader2(data_place, num_test_data=1000):
 
     imgs_path_list, labels_ID, labels_illu = read_path_and_label(data_place)
 
-    imgs_path_list = imgs_path_list[:-num_test_data]
-    labels_ID = labels_ID[:-num_test_data]
-    labels_illu = labels_illu[:-num_test_data]
+    # imgs_path_list = imgs_path_list[:-num_test_data]
+    # labels_ID = labels_ID[:-num_test_data]
+    # labels_illu = labels_illu[:-num_test_data]
 
     return [imgs_path_list, labels_ID, labels_illu, Nd, Ni, Nz, channel_num]
 
@@ -124,9 +129,13 @@ if __name__=="__main__":
     else:
         print('\n Loading data from [%s]...' % args.data_place)
         try:
-            images, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader2(args.data_place)
+            # images, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader(args.data_place)
+            train_img_path_list, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader2(args.data_place)
         except:
             print("Sorry, failed to load data")
+
+    test_img_path_list = train_img_path_list[-NUM_TEST_IMG:]
+    train_img_path_list = train_img_path_list[:-NUM_TEST_IMG]
 
     # model
     if args.snapshot is None:
@@ -151,7 +160,7 @@ if __name__=="__main__":
 
     if not(args.generate):
         if not(args.multi_DRGAN):
-            train_single_DRGAN(images, id_labels, pose_labels, Nd, Ni, Nz, D, G, args)
+            train_single_DRGAN(train_img_path_list, id_labels, pose_labels, Nd, Ni, Nz, D, G, args)
         else:
             if args.batch_size % args.images_perID == 0:
                 train_multiple_DRGAN(images, id_labels, pose_labels, Nd, Ni, Nz, D, G, args)
@@ -159,6 +168,12 @@ if __name__=="__main__":
                 print("Please give valid combination of batch_size, images_perID")
                 exit()
     else:
-        # pose_code = [] # specify arbitrary pose code for every image
-        pose_code = np.random.uniform(-1, 1, (images.shape[0], Ni))
-        features = Generate_Image(images, pose_code, Nz, G, args)
+        # illu_code = [] # specify arbitrary pose code for every image
+        # illu_code = np.random.uniform(-1, 1, (test_img_path_list.shape[0], Ni)) # very noisy code
+
+        # normal illu code
+        illu_code = np.zeros((test_img_path_list.shape[0], Ni)) 
+        illu_code[:, 7] = 1.0
+
+        # features = Generate_Image(test_img_path_list, illu_code, Nz, G, args)
+        features = Generate_Image2(test_img_path_list, illu_code, Nz, G, args)

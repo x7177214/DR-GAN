@@ -197,7 +197,6 @@ class Generator(nn.Module):
             nn.BatchNorm2d(320),
             nn.ELU(),
             nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
-
         ]
         self.G_enc_convLayers = nn.Sequential(*G_enc_convLayers)
 
@@ -251,6 +250,7 @@ class Generator(nn.Module):
 
         self.G_dec_convLayers = nn.Sequential(*G_dec_convLayers)
 
+        # 320+Np+Nz -> 320 x (avg_pooling_kernel_size, apks) x (avg_pooling_kernel_size, apks)
         self.G_dec_fc = nn.Linear(320+Np+Nz, 320*self.pooling_ks*self.pooling_ks)
 
         # 重みは全て N(0, 0.02) で初期化
@@ -264,8 +264,6 @@ class Generator(nn.Module):
             elif isinstance(m, nn.Linear):
                 m.weight.data.normal_(0, 0.02)
 
-
-
     def forward(self, input, pose, noise):
 
         x = self.G_enc_convLayers(input) # Bxchx96x96 -> Bx320x1x1
@@ -276,10 +274,10 @@ class Generator(nn.Module):
 
         x = torch.cat([x, pose, noise], 1)  # Bx320 -> B x (320+Np+Nz)
 
-        x = self.G_dec_fc(x) # B x (320+Np+Nz) -> B x (320x6x6)
+        x = self.G_dec_fc(x) # B x (320+Np+Nz) -> B x (320x(apks)x(apks))
 
-        x = x.view(-1, 320, self.pooling_ks, self.pooling_ks) # B x (320x6x6) -> B x 320 x 6 x 6
+        x = x.view(-1, 320, self.pooling_ks, self.pooling_ks) # B x (320x(apks)x(apks)) -> B x 320 x (apks) x (apks)
 
-        x = self.G_dec_convLayers(x) #  B x 320 x 6 x 6 -> Bxchx96x96
+        x = self.G_dec_convLayers(x) #  B x 320 x (apks) x (apks) -> Bxchx96x96
 
         return x
