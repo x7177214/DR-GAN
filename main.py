@@ -78,9 +78,9 @@ if __name__=="__main__":
     # create ckpt folder name
     if not(args.g):
         if args.multi_DRGAN:
-            args.save_dir = os.path.join(args.save_dir, 'Multi',datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+            args.save_dir = os.path.join(args.save_dir, 'Multi', datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         else:
-            args.save_dir = os.path.join(args.save_dir, 'Single',datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+            args.save_dir = os.path.join(args.save_dir, 'Single', datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
         os.makedirs(args.save_dir)
 
     print("Parameters:")
