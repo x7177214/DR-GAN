@@ -13,7 +13,7 @@ import model.single_DR_GAN_model as single_model
 from util.create_randomdata import create_randomdata
 from train_single_DRGAN import train_single_DRGAN
 from train_multiple_DRGAN import train_multiple_DRGAN
-from Generate_Image import Generate_Image
+from Generate_Image import Generate_Image2
 from data_io import read_path_and_label
 import pdb
 
