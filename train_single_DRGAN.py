@@ -77,7 +77,8 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
             minibatch_size = len(batch_image)
 
             # ノイズと姿勢コードを生成
-            fixed_noise = torch.FloatTensor(np.random.uniform(-1,1, (minibatch_size, Nz)))
+            # fixed_noise = torch.FloatTensor(np.random.uniform(-1,1, (minibatch_size, Nz)))
+            fixed_noise = torch.FloatTensor(np.random.standard_normal((minibatch_size, Nz)))
             tmp  = torch.LongTensor(np.random.randint(Np, size=minibatch_size))
             pose_code = one_hot(tmp, Np) # Condition 付に使用
             pose_code_label = torch.LongTensor(tmp) # CrossEntropy 誤差に使用
