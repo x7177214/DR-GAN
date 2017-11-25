@@ -172,7 +172,8 @@ def Generate_Image2(images_path, pose_code, Nz, G_model, args):
             h = args.train_img_size
             w = args.train_img_size
             
-            new_h, new_w = args.rndcrop_train_img_size
+            new_h = args.rndcrop_train_img_size
+            new_w = args.rndcrop_train_img_size
 
             top = np.random.randint(0, h - new_h)
             left = np.random.randint(0, w - new_w)

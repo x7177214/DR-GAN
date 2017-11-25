@@ -66,6 +66,8 @@ if __name__=="__main__":
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
     # parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
     parser.add_argument('-data_place', type=str, default='/Disk2/Multi-Pie/data', help='prepared data path to run program')
+    # parser.add_argument('-data_place', type=str, default='/home/hank/Desktop/Link to workspace/Multi-Pie/data', help='prepared data path to run program')
+    
     # model
     parser.add_argument('-multi-DRGAN', action='store_true', default=False, help='use multi image DR_GAN model')
     parser.add_argument('-images-perID', type=int, default=0, help='number of images per person to input to multi image DR_GAN')
