@@ -44,6 +44,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     beta2_Adam = args.beta2
     rndcrop_size = args.rndcrop_train_img_size
     eps = 10**-300 # for safe logarithm
+    REAL_LABEL = 0.9
 
     image_size = len(images)
     epoch_time = np.ceil(image_size / args.batch_size).astype(int)
@@ -111,7 +112,12 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
 
                     # id,真偽, pose それぞれのロスを計算
                     L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
-                    L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
+
+                    if args.use_lsgan:
+                        L_gan   = Variable.sum((real_output[:, Nd]-REAL_LABEL)**2.0 + (syn_output[:, Nd]-0.0)**2.0) / minibatch_size
+                    else:
+                        L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
+                    
                     L_pose  = loss_criterion(real_output[:, Nd+1:], batch_pose_label)
 
                     d_loss = L_gan + L_id + L_pose
@@ -129,7 +135,12 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
 
                     # id についての出力と元画像のラベル, 真偽, poseについての出力と生成時に与えたposeコード の ロスを計算
                     L_id    = loss_criterion(syn_output[:, :Nd], batch_id_label)
-                    L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
+
+                    if args.use_lsgan:
+                        L_gan   = Variable.sum((syn_output[:, Nd]-REAL_LABEL)**2.0) / minibatch_size
+                    else:
+                        L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
+                    
                     L_pose  = loss_criterion(syn_output[:, Nd+1:], pose_code_label)
 
                     g_loss = L_gan + L_id + L_pose
@@ -147,7 +158,12 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
 
                     # id,真偽, pose それぞれのロスを計算
                     L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
-                    L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
+
+                    if args.use_lsgan:
+                        L_gan   = Variable.sum((real_output[:, Nd]-REAL_LABEL)**2.0 + (syn_output[:, Nd]-0.0)**2.0) / minibatch_size
+                    else:
+                        L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
+
                     L_pose  = loss_criterion(real_output[:, Nd+1:], batch_pose_label)
 
                     d_loss = L_gan + L_id + L_pose
@@ -165,7 +181,12 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
 
                     # id についての出力と元画像のラベル, 真偽, poseについての出力と生成時に与えたposeコード の ロスを計算
                     L_id    = loss_criterion(syn_output[:, :Nd], batch_id_label)
-                    L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
+
+                    if args.use_lsgan:
+                        L_gan   = Variable.sum((syn_output[:, Nd]-REAL_LABEL)**2.0) / minibatch_size
+                    else:
+                        L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
+                        
                     L_pose  = loss_criterion(syn_output[:, Nd+1:], pose_code_label)
 
                     g_loss = L_gan + L_id + L_pose
