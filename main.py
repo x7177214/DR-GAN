@@ -26,37 +26,6 @@ NUM_ID = 346
 NUM_ILLUMINATION = 20
 NUM_SESS = 4
 
-
-
-def DataLoader(data_place, num_data=7000):
-    """
-    Define dataloder which is applicable to your data
-
-    ### ouput
-    images : 4 dimension tensor (the number of image x channel x image_height x image_width)
-    id_labels : one-hot vector with Nd dimension
-    pose_labels : one-hot vetor with Ni dimension
-    Nd : the nuber of ID in the data
-    Ni : the number of discrete pose in the data
-    Nz : size of noise vector (Default in the paper is 50)
-    """
-
-    # mycase
-    Nz = 50
-    channel_num = 3
-    images = np.load('{}/images.npy'.format(data_place))
-    id_labels = np.load('{}/ids.npy'.format(data_place))
-    pose_labels = np.load('{}/yaws.npy'.format(data_place))
-
-    Ni = int(pose_labels.max() + 1)
-    Nd = int(id_labels.max() + 1)
-
-    images = images[:num_data]
-    id_labels = id_labels[:num_data]
-    pose_labels = pose_labels[:num_data]
-
-    return [images, id_labels, pose_labels, Nd, Ni, Nz, channel_num]
-
 def DataLoader2(data_place, num_test_data=NUM_TEST_IMG):
     """
     ### ouput
@@ -92,7 +61,7 @@ if __name__=="__main__":
     parser.add_argument('-batch-size', type=int, default=8, help='batch size for training [default: 8]')
     parser.add_argument('-save-dir', type=str, default='snapshot', help='where to save the snapshot')
     parser.add_argument('-save-freq', type=int, default=10, help='save learned model for every "-save-freq" epoch')
-    parser.add_argument('-cuda', action='store_true', default=False, help='enable the gpu')
+    parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
     # parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')

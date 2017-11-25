@@ -115,6 +115,7 @@ def Generate_Image(images, pose_code, Nz, G_model, args):
                 image_number += 1
 
         features = torch.cat(features)
+    return features
 
 def Generate_Image2(images_path, pose_code, Nz, G_model, args):
     """
@@ -187,7 +188,7 @@ def Generate_Image2(images_path, pose_code, Nz, G_model, args):
 
     G_model.eval()
 
-    image_size = images_path.shape[0]
+    image_size = len(images_path)
     epoch_time = np.ceil(image_size / args.batch_size).astype(int)
     features = []
     image_number = 1
@@ -268,5 +269,6 @@ def Generate_Image2(images_path, pose_code, Nz, G_model, args):
                 misc.imsave(filename, save_generated_image.astype(np.uint8))
 
                 image_number += 1
-
         features = torch.cat(features)
+        
+    return features
