@@ -201,10 +201,10 @@ class Generator(nn.Module):
         self.G_enc_convLayers = nn.Sequential(*G_enc_convLayers)
 
         G_dec_convLayers = [
-            nn.ConvTranspose2d(320,160, 3,1,1, bias=False), # Bx320x6x6 -> Bx160x6x6
+            nn.ConvTranspose2d(320,160, 3, 1, 1, bias=False), # Bx320x6x6 -> Bx160x6x6
             nn.BatchNorm2d(160),
             nn.ELU(),
-            nn.ConvTranspose2d(160, 256, 3,1,1, bias=False), # Bx160x6x6 -> Bx256x6x6
+            nn.ConvTranspose2d(160, 256, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx256x6x6
             nn.BatchNorm2d(256),
             nn.ELU(),
             nn.ConvTranspose2d(256, 256, 3,2,0, bias=False), # Bx256x6x6 -> Bx256x13x13
@@ -244,7 +244,7 @@ class Generator(nn.Module):
             nn.ConvTranspose2d(64, 32,  3,1,1, bias=False), # Bx64x96x96 -> Bx32x96x96
             nn.BatchNorm2d(32),
             nn.ELU(),
-            nn.ConvTranspose2d(32, channel_num,  3,1,1, bias=False), # Bx32x96x96 -> Bxchx96x96
+            nn.ConvTranspose2d(32, channel_num,  3, 1, 1, bias=False), # Bx32x96x96 -> Bxchx96x96
             nn.Tanh(),
         ]
 

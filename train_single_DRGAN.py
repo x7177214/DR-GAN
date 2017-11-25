@@ -20,7 +20,18 @@ from util.log_learning import log_learning
 from util.DataAugmentation import FaceIdPoseDataset2, Resize, RandomCrop
 
 
-def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_model, args):
+def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_model, args, start_epoch=1):
+    '''
+    input:
+        images: image PATH list
+        id_labels / pose_labels: id / pose numpy arr. (Not one hot)
+        Nd/Np/Nz: # of id/pose/noise
+        D_model: discriminator
+        G_model: generator
+        args: shell arg.
+        start_epoch: starting epoch for training
+    '''
+    
     if args.cuda:
         D_model.cuda()
         G_model.cuda()
@@ -32,11 +43,10 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     beta1_Adam = args.beta1
     beta2_Adam = args.beta2
     rndcrop_size = args.rndcrop_train_img_size
-    eps = 10**-300 #orginal
-    # eps = 10**-3
+    eps = 10**-300 # for safe logarithm
 
-    # image_size = images.shape[0]
-    # epoch_time = np.ceil(image_size / args.batch_size).astype(int)
+    image_size = len(images)
+    epoch_time = np.ceil(image_size / args.batch_size).astype(int)
 
     optimizer_D = optim.Adam(D_model.parameters(), lr = lr_Adam, betas=(beta1_Adam, beta2_Adam))
     optimizer_G = optim.Adam(G_model.parameters(), lr = lr_Adam, betas=(beta1_Adam, beta2_Adam))
@@ -46,7 +56,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     steps = 0
 
     flag_D_strong  = False
-    for epoch in range(1,args.epochs+1):
+    for epoch in range(start_epoch, args.epochs+1):
 
         # Load augmented data
         # transformed_dataset = FaceIdPoseDataset(images, id_labels, pose_labels,
@@ -71,7 +81,6 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
             tmp  = torch.LongTensor(np.random.randint(Np, size=minibatch_size))
             pose_code = one_hot(tmp, Np) # Condition 付に使用
             pose_code_label = torch.LongTensor(tmp) # CrossEntropy 誤差に使用
-
 
             if args.cuda:
                 batch_image, batch_id_label, batch_pose_label = \
@@ -177,9 +186,15 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
             # 最後のエポックの学習前に生成した画像を１枚保存（学習の確認用）
             save_generated_image = generated[0].cpu().data.numpy().transpose(1, 2, 0)
             save_generated_image = np.squeeze(save_generated_image)
-            save_generated_image = (save_generated_image+1)/2.0 * 255.
+
+            # min~max -> 0~255
+            save_generated_image -= save_generated_image.min()
+            save_generated_image = save_generated_image/save_generated_image.max()
+            save_generated_image = save_generated_image*255.0
+
+            # save_generated_image = (save_generated_image+1)/2.0 * 255.
             save_generated_image = save_generated_image[:,:,[2,1,0]] # convert from BGR to RGB
-            save_path_image = os.path.join(args.save_dir, 'epoch{}_generatedimage.jpg'.format(epoch))
+            save_path_image = os.path.join(args.save_dir, 'epoch{}_generatedimage.png'.format(epoch))
             misc.imsave(save_path_image, save_generated_image.astype(np.uint8))
 
 
