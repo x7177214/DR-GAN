@@ -44,7 +44,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     beta2_Adam = args.beta2
     rndcrop_size = args.rndcrop_train_img_size
     eps = 10**-300 # for safe logarithm
-    REAL_LABEL = 0.9
+    REAL_LABEL = 0.9 # for LSGAN
 
     image_size = len(images)
     epoch_time = np.ceil(image_size / args.batch_size).astype(int)

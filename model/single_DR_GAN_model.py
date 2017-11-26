@@ -29,52 +29,53 @@ class Discriminator(nn.Module):
 
         convLayers = [
             nn.Conv2d(channel_num, 32, 3, 1, 1, bias=False), # Bxchx96x96 -> Bx32x96x96
-            nn.BatchNorm2d(32),
-            nn.ELU(),
+            # no BatchNorm here, as DCGAN said
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(32, 64, 3, 1, 1, bias=False), # Bx32x96x96 -> Bx64x96x96
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx64x96x96 -> Bx64x97x97
             nn.Conv2d(64, 64, 3, 2, 0, bias=False), # Bx64x97x97 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, 64, 3, 1, 1, bias=False), # Bx64x48x48 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(64, 128, 3, 1, 1, bias=False), # Bx64x48x48 -> Bx128x48x48
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx128x48x48 -> Bx128x49x49
             nn.Conv2d(128, 128, 3, 2, 0, bias=False), #  Bx128x49x49 -> Bx128x24x24
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(128, 96, 3, 1, 1, bias=False), #  Bx128x24x24 -> Bx96x24x24
             nn.BatchNorm2d(96),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(96, 192, 3, 1, 1, bias=False), #  Bx96x24x24 -> Bx192x24x24
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx192x24x24 -> Bx192x25x25
             nn.Conv2d(192, 192, 3, 2, 0, bias=False), # Bx192x25x25 -> Bx192x12x12
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(192, 128, 3, 1, 1, bias=False), # Bx192x12x12 -> Bx128x12x12
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(128, 256, 3, 1, 1, bias=False), # Bx128x12x12 -> Bx256x12x12
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx256x12x12 -> Bx256x13x13
             nn.Conv2d(256, 256, 3, 2, 0, bias=False),  # Bx256x13x13 -> Bx256x6x6
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(256, 160, 3, 1, 1, bias=False), # Bx256x6x6 -> Bx160x6x6
             nn.BatchNorm2d(160),
-            nn.ELU(),
+            nn.LeakyReLU(0.2, inplace=True),
             nn.Conv2d(160, 320, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx320x6x6
             nn.BatchNorm2d(320),
-            nn.ELU(),
-            nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
+            nn.LeakyReLU(0.2, inplace=True),
+            # nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
+            nn.Conv2d(320, 320, self.pooling_ks, 1, 1, bias=False), # Bx320x(pks)x(pks) -> Bx320x1x1
         ]
 
         self.convLayers = nn.Sequential(*convLayers)
@@ -84,9 +85,11 @@ class Discriminator(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 m.weight.data.normal_(0, 0.02)
-
             elif isinstance(m, nn.Linear):
                 m.weight.data.normal_(0, 0.02)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.normal_(1.0, 0.02)
+                m.bias.data.fill_(0)
 
     def forward(self, input):
         # 畳み込み -> 平均プーリングの結果 B x 320 x 1 x 1の出力を得る
@@ -152,50 +155,50 @@ class Generator(nn.Module):
         G_enc_convLayers = [
             nn.Conv2d(channel_num, 32, 3, 1, 1, bias=False), # Bx3x96x96 -> Bx32x96x96
             nn.BatchNorm2d(32),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(32, 64, 3, 1, 1, bias=False), # Bx32x96x96 -> Bx64x96x96
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx64x96x96 -> Bx64x97x97
             nn.Conv2d(64, 64, 3, 2, 0, bias=False), # Bx64x97x97 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(64, 64, 3, 1, 1, bias=False), # Bx64x48x48 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(64, 128, 3, 1, 1, bias=False), # Bx64x48x48 -> Bx128x48x48
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx128x48x48 -> Bx128x49x49
             nn.Conv2d(128, 128, 3, 2, 0, bias=False), #  Bx128x49x49 -> Bx128x24x24
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(128, 96, 3, 1, 1, bias=False), #  Bx128x24x24 -> Bx96x24x24
             nn.BatchNorm2d(96),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(96, 192, 3, 1, 1, bias=False), #  Bx96x24x24 -> Bx192x24x24
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx192x24x24 -> Bx192x25x25
             nn.Conv2d(192, 192, 3, 2, 0, bias=False), # Bx192x25x25 -> Bx192x12x12
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(192, 128, 3, 1, 1, bias=False), # Bx192x12x12 -> Bx128x12x12
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(128, 256, 3, 1, 1, bias=False), # Bx128x12x12 -> Bx256x12x12
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ZeroPad2d((0, 1, 0, 1)),                      # Bx256x12x12 -> Bx256x13x13
             nn.Conv2d(256, 256, 3, 2, 0, bias=False),  # Bx256x13x13 -> Bx256x6x6
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(256, 160, 3, 1, 1, bias=False), # Bx256x6x6 -> Bx160x6x6
             nn.BatchNorm2d(160),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.Conv2d(160, 320, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx320x6x6
             nn.BatchNorm2d(320),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
         ]
         self.G_enc_convLayers = nn.Sequential(*G_enc_convLayers)
@@ -203,47 +206,47 @@ class Generator(nn.Module):
         G_dec_convLayers = [
             nn.ConvTranspose2d(320,160, 3, 1, 1, bias=False), # Bx320x6x6 -> Bx160x6x6
             nn.BatchNorm2d(160),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(160, 256, 3, 1, 1, bias=False), # Bx160x6x6 -> Bx256x6x6
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(256, 256, 3,2,0, bias=False), # Bx256x6x6 -> Bx256x13x13
             nn.BatchNorm2d(256),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             Crop([0, 1, 0, 1]),
             nn.ConvTranspose2d(256, 128, 3,1,1, bias=False), # Bx256x12x12 -> Bx128x12x12
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(128, 192,  3,1,1, bias=False), # Bx128x12x12 -> Bx192x12x12
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(192, 192,  3,2,0, bias=False), # Bx128x12x12 -> Bx192x25x25
             nn.BatchNorm2d(192),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             Crop([0, 1, 0, 1]),
             nn.ConvTranspose2d(192, 96,  3,1,1, bias=False), # Bx192x24x24 -> Bx96x24x24
             nn.BatchNorm2d(96),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(96, 128,  3,1,1, bias=False), # Bx96x24x24 -> Bx128x24x24
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(128, 128,  3,2,0, bias=False), # Bx128x24x24 -> Bx128x49x49
             nn.BatchNorm2d(128),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             Crop([0, 1, 0, 1]),
             nn.ConvTranspose2d(128, 64,  3,1,1, bias=False), # Bx128x48x48 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(64, 64,  3,1,1, bias=False), # Bx64x48x48 -> Bx64x48x48
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(64, 64,  3,2,0, bias=False), # Bx64x48x48 -> Bx64x97x97
             nn.BatchNorm2d(64),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             Crop([0, 1, 0, 1]),
             nn.ConvTranspose2d(64, 32,  3,1,1, bias=False), # Bx64x96x96 -> Bx32x96x96
             nn.BatchNorm2d(32),
-            nn.ELU(),
+            nn.ReLU(inplace=True),
             nn.ConvTranspose2d(32, channel_num,  3, 1, 1, bias=False), # Bx32x96x96 -> Bxchx96x96
             nn.Tanh(),
         ]
@@ -257,12 +260,13 @@ class Generator(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 m.weight.data.normal_(0, 0.02)
-
             elif isinstance(m, nn.ConvTranspose2d):
                 m.weight.data.normal_(0, 0.02)
-
             elif isinstance(m, nn.Linear):
                 m.weight.data.normal_(0, 0.02)
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.normal_(1.0, 0.02)
+                m.bias.data.fill_(0)
 
     def forward(self, input, pose, noise):
 
