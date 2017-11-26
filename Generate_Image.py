@@ -209,8 +209,13 @@ def Generate_Image2(images_path, pose_code, Nz, G_model, args):
             batch_pose_code = torch.FloatTensor(pose_code[start:end]) # Condition 付に使用
             minibatch_size = len(batch_image)
 
-            # fixed_noise = torch.FloatTensor(np.random.uniform(-1, 1, (minibatch_size, Nz)))
-            fixed_noise = torch.FloatTensor(np.random.standard_normal((minibatch_size, Nz)))
+            # ノイズと姿勢コードを生成
+            if args.noise_type == 0:
+                fixed_noise = torch.FloatTensor(np.random.uniform(-1, 1, (minibatch_size, Nz)))
+            elif args.noise_type == 1:
+                fixed_noise = torch.FloatTensor(np.random.standard_normal((minibatch_size, Nz)))
+            else:
+                raise IndexError('current noise_type is not allowed')
 
             if args.cuda:
                 batch_image, fixed_noise, batch_pose_code = \
