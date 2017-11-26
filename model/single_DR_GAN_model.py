@@ -6,8 +6,6 @@ from torch import nn, optim
 from torch.autograd import Variable
 import pdb
 
-
-
 class Discriminator(nn.Module):
     """
     multi-task CNN for identity and pose classification
@@ -75,7 +73,7 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(320),
             nn.LeakyReLU(0.2, inplace=True),
             # nn.AvgPool2d(self.pooling_ks, stride=1), #  Bx320x6x6 -> Bx320x1x1
-            nn.Conv2d(320, 320, self.pooling_ks, 1, 1, bias=False), # Bx320x(pks)x(pks) -> Bx320x1x1
+            nn.Conv2d(320, 320, self.pooling_ks, bias=False), # Bx320x(pks)x(pks) -> Bx320x1x1
         ]
 
         self.convLayers = nn.Sequential(*convLayers)
