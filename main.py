@@ -17,7 +17,7 @@ from data_io import read_path_and_label
 import pdb
 
 ### controller ###
-NUM_TEST_IMG = 10
+NUM_TEST_IMG = 100
 ##################
 
 # NUM_TOTAL_IMG = 18420
@@ -59,8 +59,6 @@ if __name__=="__main__":
     parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
-    # parser.add_argument('-data_place', type=str, default='../dataset/cfp-dataset', help='prepared data path to run program')
-    # parser.add_argument('-data_place', type=str, default='/Disk2/Multi-Pie/data', help='prepared data path to run program')
     parser.add_argument('-data_place', type=str, default='../../../Multi-Pie/data', help='prepared data path to run program')
     
     # model
@@ -96,7 +94,6 @@ if __name__=="__main__":
     else:
         print('\n Loading data from [%s]...' % args.data_place)
         try:
-            # images, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader(args.data_place)
             train_img_path_list, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader2(args.data_place)
         except:
             print("Sorry, failed to load data")

@@ -217,7 +217,7 @@ def Generate_Image2(images_path, pose_code, Nz, G_model, args):
                     batch_image.cuda(), fixed_noise.cuda(), batch_pose_code.cuda()
 
             batch_image, fixed_noise, batch_pose_code = \
-                Variable(batch_image), Variable(fixed_noise), Variable(batch_pose_code)
+                Variable(batch_image, volatile=True), Variable(fixed_noise, volatile=True), Variable(batch_pose_code, volatile=True)
 
             # Generatorでイメージ生成
             generated = G_model(batch_image, batch_pose_code, fixed_noise)

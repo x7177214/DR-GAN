@@ -59,9 +59,6 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
     flag_D_strong  = False
     for epoch in range(start_epoch, args.epochs+1):
 
-        # Load augmented data
-        # transformed_dataset = FaceIdPoseDataset(images, id_labels, pose_labels,
-        #                                 transform = transforms.Compose([RandomCrop((96,96))]))
         # Load augmented data (using img path)
         transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
                                         transform = transforms.Compose([RandomCrop((rndcrop_size, rndcrop_size))]), img_size=args.train_img_size)
@@ -108,7 +105,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
                 if i%5 == 0:
                     # Discriminator の学習
                     real_output = D_model(batch_image)
-                    syn_output = D_model(generated.detach()) # .detach() をすることで Generatorまでの逆伝播計算省略
+                    syn_output = D_model(generated.detach()) # .detach() をすることで Generatorまでのパラメータを更新しない
 
                     # id,真偽, pose それぞれのロスを計算
                     L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
