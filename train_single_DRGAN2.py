@@ -65,13 +65,9 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
         transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
                                         transform = None, img_size=args.train_img_size)
 
-
-
         dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True, num_workers=8)
 
         for i, batch_data in enumerate(dataloader):
-            D_model.zero_grad()
-            G_model.zero_grad()
 
             batch_image = torch.FloatTensor(batch_data[0].float())
             batch_id_label = batch_data[1]
@@ -104,103 +100,64 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
                 Variable(fixed_noise), Variable(pose_code), Variable(pose_code_label)
 
             # Generatorでイメージ生成
-            batch_image = batch_image.contiguous()
             generated = G_model(batch_image, pose_code, fixed_noise)
 
             steps += 1
 
-            # バッチ毎に交互に D と G の学習，　Dが90%以上の精度の場合は 1:4の比率で学習
+            # Dが90%以上の精度の場合は 1:4の比率で学習
             if flag_D_strong:
-
-                if i%5 == 0:
-                    # Discriminator の学習
-                    real_output = D_model(batch_image)
-                    syn_output = D_model(generated.detach()) # .detach() をすることで Generatorまでのパラメータを更新しない
-
-                    # id,真偽, pose それぞれのロスを計算
-                    L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
-
-                    if args.use_lsgan:
-                        L_gan   = Variable.sum((real_output[:, Nd]-REAL_LABEL)**2.0 + (syn_output[:, Nd]-0.0)**2.0) / minibatch_size
-                    else:
-                        L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
-                    
-                    L_pose  = loss_criterion(real_output[:, Nd+1:], batch_pose_label)
-
-                    d_loss = L_gan + L_id + L_pose
-
-                    d_loss.backward()
-                    optimizer_D.step()
-                    log_learning(epoch, steps, 'D', d_loss.data[0], args)
-
-                    # Discriminator の強さを判別
-                    flag_D_strong = Is_D_strong(real_output, syn_output, batch_id_label, batch_pose_label, Nd)
-
-                else:
-                    # Generatorの学習
-                    syn_output=D_model(generated)
-
-                    # id についての出力と元画像のラベル, 真偽, poseについての出力と生成時に与えたposeコード の ロスを計算
-                    L_id    = loss_criterion(syn_output[:, :Nd], batch_id_label)
-
-                    if args.use_lsgan:
-                        L_gan   = Variable.sum((syn_output[:, Nd]-REAL_LABEL)**2.0) / minibatch_size
-                    else:
-                        L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
-                    
-                    L_pose  = loss_criterion(syn_output[:, Nd+1:], pose_code_label)
-
-                    g_loss = L_gan + L_id + L_pose
-
-                    g_loss.backward()
-                    optimizer_G.step()
-                    log_learning(epoch, steps, 'G', g_loss.data[0], args)
-
+                num_learning_g = 4
             else:
+                num_learning_g = 2
 
-                if i%2==0:
-                    # Discriminator の学習
-                    real_output = D_model(batch_image)
-                    syn_output = D_model(generated.detach()) # .detach() をすることでGeneratorのパラメータを更新しない
+            # Discriminator の学習
+            real_output = D_model(batch_image)
+            syn_output = D_model(generated.detach()) # .detach() をすることでGeneratorのパラメータを更新しない
 
-                    # id,真偽, pose それぞれのロスを計算
-                    L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
+            # id,真偽, pose それぞれのロスを計算
+            L_id    = loss_criterion(real_output[:, :Nd], batch_id_label)
 
-                    if args.use_lsgan:
-                        L_gan   = Variable.sum((real_output[:, Nd]-REAL_LABEL)**2.0 + (syn_output[:, Nd]-0.0)**2.0) / minibatch_size
-                    else:
-                        L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
+            if args.use_lsgan:
+                L_gan   = Variable.sum((real_output[:, Nd]-REAL_LABEL)**2.0 + (syn_output[:, Nd]-0.0)**2.0) / minibatch_size
+            else:
+                L_gan   = Variable.sum(real_output[:, Nd].sigmoid().log()*-1 + (1 - syn_output[:, Nd].sigmoid()).log()*-1) / minibatch_size
 
-                    L_pose  = loss_criterion(real_output[:, Nd+1:], batch_pose_label)
+            L_pose  = loss_criterion(real_output[:, Nd+1:], batch_pose_label)
 
-                    d_loss = L_gan + L_id + L_pose
+            d_loss = L_gan + L_id + L_pose
 
-                    d_loss.backward()
-                    optimizer_D.step()
-                    log_learning(epoch, steps, 'D', d_loss.data[0], args)
+            optimizer_D.zero_grad()
+            d_loss.backward()
+            optimizer_D.step()
+                    
+            # Generatorの学習
+            for k in range(num_learning_g):
+                if k > 0: 
+                    # Generatorでイメージ生成
+                    generated = G_model(batch_image, pose_code, fixed_noise)
 
-                    # Discriminator の強さを判別
-                    flag_D_strong = Is_D_strong(real_output, syn_output, batch_id_label, batch_pose_label, Nd)
+                syn_output=D_model(generated)
 
+                # id についての出力と元画像のラベル, 真偽, poseについての出力と生成時に与えたposeコード の ロスを計算
+                L_id    = loss_criterion(syn_output[:, :Nd], batch_id_label)
+
+                if args.use_lsgan:
+                    L_gan   = Variable.sum((syn_output[:, Nd]-REAL_LABEL)**2.0) / minibatch_size
                 else:
-                    # Generatorの学習
-                    syn_output=D_model(generated)
+                    L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
+                    
+                L_pose  = loss_criterion(syn_output[:, Nd+1:], pose_code_label)
 
-                    # id についての出力と元画像のラベル, 真偽, poseについての出力と生成時に与えたposeコード の ロスを計算
-                    L_id    = loss_criterion(syn_output[:, :Nd], batch_id_label)
+                g_loss = L_gan + L_id + L_pose
 
-                    if args.use_lsgan:
-                        L_gan   = Variable.sum((syn_output[:, Nd]-REAL_LABEL)**2.0) / minibatch_size
-                    else:
-                        L_gan   = Variable.sum(syn_output[:, Nd].sigmoid().clamp(min=eps).log()*-1) / minibatch_size
-                        
-                    L_pose  = loss_criterion(syn_output[:, Nd+1:], pose_code_label)
-
-                    g_loss = L_gan + L_id + L_pose
-
-                    g_loss.backward()
-                    optimizer_G.step()
-                    log_learning(epoch, steps, 'G', g_loss.data[0], args)
+                optimizer_G.zero_grad()
+                g_loss.backward()
+                optimizer_G.step()
+                
+            log_learning(epoch, steps, 'G', g_loss.data[0], args)
+            log_learning(epoch, steps, 'D', d_loss.data[0], args) 
+            # Discriminator の強さを判別
+            flag_D_strong = Is_D_strong(real_output, syn_output, batch_id_label, batch_pose_label, Nd)
 
         # エポック毎にロスの保存
         loss_log.append([epoch, d_loss.data[0], g_loss.data[0]])

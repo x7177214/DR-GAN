@@ -103,33 +103,6 @@ class Discriminator(nn.Module):
         return x
 
 
-## nn.Module を継承しても， super でコンストラクタを呼び出さないと メンバ変数 self._modues が
-## 定義されずに後の重み初期化の際にエラーを出す
-## sef._modules はモジュールが格納するモジュール名を格納しておくリスト
-
-class Crop(nn.Module):
-    """
-    Generator でのアップサンプリング時に， ダウンサンプル時のZeroPad2d と逆の事をするための関数
-    論文著者が Tensorflow で padding='SAME' オプションで自動的にパディングしているのを
-    ダウンサンプル時にはZeroPad2dで，アップサンプリング時には Crop で実現
-
-    ### init
-    crop_list : データの上下左右をそれぞれどれくらい削るか指定
-    """
-
-    def __init__(self, crop_list):
-        super(Crop, self).__init__()
-
-        # crop_lsit = [crop_top, crop_bottom, crop_left, crop_right]
-        self.crop_list = crop_list
-
-    def forward(self, x):
-        B,C,H,W = x.size()
-        x = x[:,:, self.crop_list[0] : H - self.crop_list[1] , self.crop_list[2] : W - self.crop_list[3]]
-
-        return x
-
-
 class Generator(nn.Module):
     """
     Encoder/Decoder conditional GAN conditioned with pose vector and noise vector
@@ -283,3 +256,4 @@ class Generator(nn.Module):
         x = self.G_dec_convLayers(x) #  B x 320 x (apks) x (apks) -> Bxchx96x96
 
         return x
+

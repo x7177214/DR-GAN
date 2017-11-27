@@ -8,9 +8,9 @@ import numpy as np
 import torch
 from torch import nn, optim
 from torch.autograd import Variable
-import model.single_DR_GAN_model as single_model
+import model.single_DR_GAN_model2 as single_model
 from util.create_randomdata import create_randomdata
-from train_single_DRGAN import train_single_DRGAN
+from train_single_DRGAN2 import train_single_DRGAN
 from train_multiple_DRGAN import train_multiple_DRGAN
 from Generate_Image import Generate_Image2
 from data_io import read_path_and_label
@@ -68,7 +68,7 @@ if __name__=="__main__":
     parser.add_argument('-snapshot', type=str, default=None, help='filename of model snapshot(snapshot/{Single or Multiple}/{date}/{epoch}) [default: None]')
     parser.add_argument('-g', action='store_true', default=None, help='Generate pose modified image from given image')
     parser.add_argument('-train_img_size', type=int, default=256, help='Image size for training')
-    parser.add_argument('-rndcrop_train_img_size', type=int, default=240, help='Random cropped image size for training. Must be 16 * K')
+    parser.add_argument('-rndcrop_train_img_size', type=int, default=256, help='Random cropped image size for training. Must be 16 * K')
     parser.add_argument('-use_lsgan', action='store_true', default=True, help='Use LSGAN other than traditional GAN')
     parser.add_argument('-noise_type', type=int, default=0, help='0: unifom; 1: standard Gaussian')
 
