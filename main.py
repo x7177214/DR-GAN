@@ -10,7 +10,7 @@ from torch import nn, optim
 from torch.autograd import Variable
 import model.single_DR_GAN_model as single_model
 from util.create_randomdata import create_randomdata
-from train_single_DRGAN import train_single_DRGAN
+from train_single_DRGAN2 import train_single_DRGAN
 from Generate_Image import Generate_Image
 from data_io import read_path_and_label
 import pdb
@@ -52,7 +52,7 @@ if __name__=="__main__":
     parser.add_argument('-beta1', type=float, default=0.5, help='adam optimizer parameter [default: 0.5]')
     parser.add_argument('-beta2', type=float, default=0.999, help='adam optimizer parameter [default: 0.999]')
     parser.add_argument('-epochs', type=int, default=1000, help='number of epochs for train [default: 1000]')
-    parser.add_argument('-batch-size', type=int, default=10, help='batch size for training [default: 8]')
+    parser.add_argument('-batch-size', type=int, default=5, help='batch size for training [default: 8]')
     parser.add_argument('-save-dir', type=str, default='snapshot', help='where to save the snapshot')
     parser.add_argument('-save-freq', type=int, default=1, help='save learned model for every "-save-freq" epoch')
     parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')

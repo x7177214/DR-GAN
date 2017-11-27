@@ -62,9 +62,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
         # Load augmented data (using img path)
         transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
                                         transform = transforms.Compose([RandomCrop((rndcrop_size, rndcrop_size))]), img_size=args.train_img_size)
-        # transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
-        #                                 transform = None, img_size=args.train_img_size)
-
+                                        
         dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True, num_workers=8)
 
         for i, batch_data in enumerate(dataloader):
@@ -214,7 +212,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
             save_generated_image = generated[0].cpu().data.numpy().transpose(1, 2, 0)
             save_generated_image = np.squeeze(save_generated_image)
 
-            # # min~max -> 0~255
+            # min~max -> 0~255
             # save_generated_image -= save_generated_image.min()
             # save_generated_image = save_generated_image/save_generated_image.max()
             # save_generated_image = save_generated_image*255.0
