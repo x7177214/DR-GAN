@@ -62,7 +62,7 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
         # Load augmented data (using img path)
         transformed_dataset = FaceIdPoseDataset2(images, id_labels, pose_labels,
                                         transform = transforms.Compose([RandomCrop((rndcrop_size, rndcrop_size))]), img_size=args.train_img_size)
-                                        
+
         dataloader = DataLoader(transformed_dataset, batch_size = args.batch_size, shuffle=True, num_workers=8)
 
         for i, batch_data in enumerate(dataloader):
@@ -213,11 +213,11 @@ def train_single_DRGAN(images, id_labels, pose_labels, Nd, Np, Nz, D_model, G_mo
             save_generated_image = np.squeeze(save_generated_image)
 
             # min~max -> 0~255
-            # save_generated_image -= save_generated_image.min()
-            # save_generated_image = save_generated_image/save_generated_image.max()
-            # save_generated_image = save_generated_image*255.0
+            save_generated_image -= save_generated_image.min()
+            save_generated_image = save_generated_image/save_generated_image.max()
+            save_generated_image = save_generated_image*255.0
 
-            save_generated_image = (save_generated_image+1)/2.0 * 255.
+            # save_generated_image = (save_generated_image+1)/2.0 * 255.
             save_generated_image = save_generated_image[:,:,[2,1,0]] # convert from BGR to RGB
             save_path_image = os.path.join(args.save_dir, 'epoch{}_generatedimage.png'.format(epoch))
             misc.imsave(save_path_image, save_generated_image.astype(np.uint8))
