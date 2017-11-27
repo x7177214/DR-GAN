@@ -13,7 +13,7 @@ import torch
 from torch import nn, optim
 from torch.autograd import Variable
 
-def Generate_Image2(images_path, pose_code, Nz, G_model, args):
+def Generate_Image(images_path, pose_code, Nz, G_model, args):
     """
     Generate_Image with learned Generator
 
