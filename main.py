@@ -8,15 +8,15 @@ import numpy as np
 import torch
 from torch import nn, optim
 from torch.autograd import Variable
-import model.single_DR_GAN_model2 as single_model
+import model.single_DR_GAN_model as single_model
 from util.create_randomdata import create_randomdata
-from train_single_DRGAN2 import train_single_DRGAN
-from Generate_Image import Generate_Image2
+from train_single_DRGAN import train_single_DRGAN
+from Generate_Image import Generate_Image
 from data_io import read_path_and_label
 import pdb
 
 ### controller ###
-NUM_TEST_IMG = 100
+NUM_TEST_IMG = 17000
 ##################
 
 # NUM_TOTAL_IMG = 18420
@@ -24,7 +24,7 @@ NUM_ID = 346
 NUM_ILLUMINATION = 20
 NUM_SESS = 4
 
-def DataLoader2(data_place):
+def DataLoader(data_place):
     """
     ### ouput
     imgs_path_list : N x string; list of image path
@@ -54,7 +54,7 @@ if __name__=="__main__":
     parser.add_argument('-epochs', type=int, default=1000, help='number of epochs for train [default: 1000]')
     parser.add_argument('-batch-size', type=int, default=10, help='batch size for training [default: 8]')
     parser.add_argument('-save-dir', type=str, default='snapshot', help='where to save the snapshot')
-    parser.add_argument('-save-freq', type=int, default=5, help='save learned model for every "-save-freq" epoch')
+    parser.add_argument('-save-freq', type=int, default=1, help='save learned model for every "-save-freq" epoch')
     parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
@@ -95,7 +95,7 @@ if __name__=="__main__":
     else:
         print('\n Loading data from [%s]...' % args.data_place)
         try:
-            train_img_path_list, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader2(args.data_place)
+            train_img_path_list, id_labels, pose_labels, Nd, Ni, Nz, channel_num = DataLoader(args.data_place)
         except:
             print("Sorry, failed to load data")
 
@@ -135,12 +135,8 @@ if __name__=="__main__":
         #         print("Please give valid combination of batch_size, images_perID")
         #         exit()
     else:
-        # illu_code = [] # specify arbitrary pose code for every image
-        # illu_code = np.random.uniform(-1, 1, (test_img_path_list.shape[0], Ni)) # very noisy code
-
         # normal illu code
         illu_code = np.zeros((len(test_img_path_list), Ni)) 
         illu_code[:, 7] = 1.0
 
-        # features = Generate_Image(test_img_path_list, illu_code, Nz, G, args)
-        features = Generate_Image2(test_img_path_list, illu_code, Nz, G, args)
+        features = Generate_Image(test_img_path_list, illu_code, Nz, G, args)

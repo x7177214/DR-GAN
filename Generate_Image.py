@@ -129,12 +129,12 @@ def Generate_Image(images_path, pose_code, Nz, G_model, args):
                 save_generated_image = generated[j].cpu().data.numpy().transpose(1, 2, 0)
                 save_generated_image = np.squeeze(save_generated_image)
 
-                # min~max -> 0~255
-                save_generated_image -= save_generated_image.min()
-                save_generated_image = save_generated_image/save_generated_image.max()
-                save_generated_image = save_generated_image*255.0
+                # # min~max -> 0~255
+                # save_generated_image -= save_generated_image.min()
+                # save_generated_image = save_generated_image/save_generated_image.max()
+                # save_generated_image = save_generated_image*255.0
 
-                # save_generated_image = (save_generated_image+1.0)/2.0 * 255.0
+                save_generated_image = (save_generated_image+1.0)/2.0 * 255.0
                 save_generated_image = save_generated_image[:,:,[2,1,0]] # convert from BGR to RGB
                 save_dir = '{}_generated'.format(args.snapshot)
                 filename = os.path.join(save_dir, '{}_{}.png'.format(str(np.where(pose_code[0]==1.0)[0]), str(image_number)))
