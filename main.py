@@ -71,6 +71,7 @@ if __name__=="__main__":
     parser.add_argument('-rndcrop_train_img_size', type=int, default=240, help='Random cropped image size for training. Must be 16 * K')
     parser.add_argument('-use_lsgan', action='store_true', default=True, help='Use LSGAN other than traditional GAN')
 
+
     args = parser.parse_args()
 
     # create ckpt folder name
