@@ -16,7 +16,7 @@ from data_io import read_path_and_label
 import pdb
 
 ### controller ###
-NUM_TEST_IMG = 3000
+NUM_TEST_IMG = 100
 ##################
 
 # NUM_TOTAL_IMG = 18420
@@ -47,15 +47,24 @@ def DataLoader(data_place):
 if __name__=="__main__":
 
     parser = argparse.ArgumentParser(description='DR_GAN')
+    
+    # MAIN PARAMETERS
+    parser.add_argument('-save-freq', type=int, default=5, help='save learned model for every "-save-freq" epoch')
+    parser.add_argument('-batch-size', type=int, default=7, help='batch size for training [default: 8]')
+    parser.add_argument('-ill_code_for_generate', type=int, default=7, help='Illumination code for generation. 0~19, different illu. situation. 7 is frontal.')
+    parser.add_argument('-train_img_size', type=int, default=256, help='Image size for training')
+    parser.add_argument('-rndcrop_train_img_size', type=int, default=256, help='Random cropped image size for training. Must be 16 * K')
+    parser.add_argument('-noise_type', type=int, default=1, help='0: unifom; 1: standard Gaussian')  
+    parser.add_argument('-use_lsgan', action='store_true', default=False, help='Use LSGAN other than traditional GAN')
+    
     # learning & saving parameterss
     parser.add_argument('-lr', type=float, default=0.0002, help='initial learning rate [default: 0.0002]')
     parser.add_argument('-beta1', type=float, default=0.5, help='adam optimizer parameter [default: 0.5]')
     parser.add_argument('-beta2', type=float, default=0.999, help='adam optimizer parameter [default: 0.999]')
     parser.add_argument('-epochs', type=int, default=1000, help='number of epochs for train [default: 1000]')
-    parser.add_argument('-batch-size', type=int, default=10, help='batch size for training [default: 8]')
     parser.add_argument('-save-dir', type=str, default='snapshot', help='where to save the snapshot')
-    parser.add_argument('-save-freq', type=int, default=5, help='save learned model for every "-save-freq" epoch')
     parser.add_argument('-cuda', action='store_true', default=True, help='enable the gpu')
+
     # data souce
     parser.add_argument('-random', action='store_true', default=False, help='use randomely created data to run program')
     parser.add_argument('-data_place', type=str, default='../../../Multi-Pie/data', help='prepared data path to run program')
@@ -63,14 +72,10 @@ if __name__=="__main__":
     # model
     parser.add_argument('-multi-DRGAN', action='store_true', default=False, help='use multi image DR_GAN model')
     parser.add_argument('-images-perID', type=int, default=0, help='number of images per person to input to multi image DR_GAN')
+    
     # option
     parser.add_argument('-snapshot', type=str, default=None, help='filename of model snapshot(snapshot/{Single or Multiple}/{date}/{epoch}) [default: None]')
     parser.add_argument('-g', action='store_true', default=None, help='Generate pose modified image from given image')
-    parser.add_argument('-train_img_size', type=int, default=256, help='Image size for training')
-    parser.add_argument('-rndcrop_train_img_size', type=int, default=256, help='Random cropped image size for training. Must be 16 * K')
-    parser.add_argument('-use_lsgan', action='store_true', default=True, help='Use LSGAN other than traditional GAN')
-    parser.add_argument('-noise_type', type=int, default=0, help='0: unifom; 1: standard Gaussian')
-
 
     args = parser.parse_args()
 
@@ -137,6 +142,6 @@ if __name__=="__main__":
     else:
         # normal illu code
         illu_code = np.zeros((len(test_img_path_list), Ni)) 
-        illu_code[:, 7] = 1.0
+        illu_code[:, int(args.ill_code_for_generate)] = 1.0
 
         features = Generate_Image(test_img_path_list, illu_code, Nz, G, args)
