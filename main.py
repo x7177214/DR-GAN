@@ -16,7 +16,7 @@ from data_io import read_path_and_label
 import pdb
 
 ### controller ###
-NUM_TEST_IMG = 100
+NUM_TEST_IMG = 9
 ##################
 
 # NUM_TOTAL_IMG = 18420
@@ -43,6 +43,26 @@ def DataLoader(data_place):
     imgs_path_list, labels_ID, labels_illu = read_path_and_label(data_place)
 
     return [imgs_path_list, labels_ID, labels_illu, Nd, Ni, Nz, channel_num]
+
+# def DataLoader(data_place):
+#     """
+#     ### ouput
+#     imgs_path_list : N x string; list of image path
+#     labels_ID : N x 1
+#     labels_illu : N x 1
+#     Nd : the nuber of ID in the data
+#     Ni : the number of discrete pose in the data
+#     Nz : size of noise vector (Default in the paper is 50)
+#     """
+
+#     Nz = 50
+#     Ni = NUM_ILLUMINATION
+#     Nd = NUM_ID
+#     channel_num = 3
+
+#     imgs_path_list = read_path_and_label(data_place)
+
+#     return [imgs_path_list, Nd, Ni, Nz, channel_num]
 
 if __name__=="__main__":
 
